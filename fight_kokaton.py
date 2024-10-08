@@ -24,6 +24,17 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
         tate = False
     return yoko, tate
 
+class Score:
+    def __init__(self):
+        self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        self.score = 0
+        self.img = self.fonto.render(f"スコア:{self.score}", 0, (0, 0, 255))
+        self.rct = self.img.get_rect()
+        self.rct.center = (100, HEIGHT-50)
+
+    def update(self, screen: pg.Surface):
+        self.img = self.fonto.render(f"スコア:{self.score}", 0, (0, 0, 255))
+        screen.blit(self.img, self.rct)
 
 class Bird:
     """
@@ -146,9 +157,10 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
     bg_img = pg.image.load("fig/pg_bg.jpg")
     bird = Bird((300, 200))
-    beam = None 
+    beam = None
     #bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
+    score = Score()#######
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -168,13 +180,15 @@ def main():
                 txt = fonto.render("Game Over", True, (255, 0, 0)) 
                 screen.blit(txt, [WIDTH//2-150, HEIGHT//2])
                 pg.display.update()
-                time.sleep(5)
+                time.sleep(3)
                 return
+            
         for j, bomb in enumerate(bombs):
             if beam is not None:
                 if beam.rct.colliderect(bomb.rct):#####ビームと爆弾が衝突したら
                     beam, bomb = None, None
-                    bird.change_img(6, screen)####
+                    bird.change_img(6, screen)###
+                    score.score += 1
                     pg.display.update()########
         bombs = [bomb for bomb in bombs if bomb is not None]
 
@@ -185,6 +199,7 @@ def main():
         for bomb in bombs:
             bomb.update(screen)  
         bomb.update(screen)
+        score.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
